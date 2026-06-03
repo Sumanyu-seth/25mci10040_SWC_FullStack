@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Modern Analytics Dashboard</title>
+  <link rel="preconnect" href="https://api.fontshare.com" />
+  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&f[]=general-sans@500,600,700&display=swap" rel="stylesheet" />
+  <style>
+    :root, [data-theme="light"] {
+      --text-xs: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem); --text-sm: clamp(0.875rem, 0.8rem + 0.35vw, 1rem); --text-base: clamp(1rem, 0.95rem + 0.25vw, 1.125rem); --text-lg: clamp(1.125rem, 1rem + 0.75vw, 1.5rem); --text-xl: clamp(1.5rem, 1.2rem + 1.25vw, 2.25rem);
+      --space-1:0.25rem; --space-2:0.5rem; --space-3:0.75rem; --space-4:1rem; --space-5:1.25rem; --space-6:1.5rem; --space-8:2rem; --space-10:2.5rem; --space-12:3rem;
+      --color-bg:#f7f6f2; --color-surface:#f9f8f5; --color-surface-2:#fbfbf9; --color-surface-offset:#f3f0ec; --color-border:#d4d1ca; --color-text:#28251d; --color-text-muted:#7a7974; --color-primary:#01696f; --color-blue:#006494; --color-success:#437a22; --color-orange:#da7101; --color-text-inverse:#f9f8f4;
+      --radius-sm:0.375rem; --radius-md:0.5rem; --radius-lg:0.75rem; --radius-xl:1rem; --radius-full:9999px; --shadow-sm:0 1px 2px rgba(40,37,29,.06); --shadow-md:0 12px 30px rgba(40,37,29,.08);
+      --font-body:'Satoshi',system-ui,sans-serif; --font-display:'General Sans',system-ui,sans-serif;
+    }
+    [data-theme="dark"] { --color-bg:#171614; --color-surface:#1c1b19; --color-surface-2:#201f1d; --color-surface-offset:#22211f; --color-border:#393836; --color-text:#cdccca; --color-text-muted:#9a9894; --color-primary:#4f98a3; --color-blue:#5591c7; --color-success:#6daa45; --color-orange:#fdab43; --color-text-inverse:#171614; --shadow-sm:0 1px 2px rgba(0,0,0,.2); --shadow-md:0 12px 30px rgba(0,0,0,.32); }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html,body{height:100%;overflow:hidden}
+    body{font-family:var(--font-body);font-size:var(--text-base);line-height:1.6;background:var(--color-bg);color:var(--color-text)}
+    a{text-decoration:none;color:inherit} button{font:inherit;border:none;background:none;cursor:pointer}
+    table{width:100%;border-collapse:collapse} :focus-visible{outline:2px solid var(--color-primary);outline-offset:3px}
+    .dashboard{display:grid;grid-template-columns:280px minmax(0,1fr);grid-template-rows:auto 1fr;height:100dvh}
+    .sidebar{grid-row:1 / -1;overflow-y:auto;overscroll-behavior:contain;background:var(--color-surface);border-right:1px solid rgba(122,121,116,.16);padding:var(--space-5)}
+    .brand{display:flex;align-items:center;gap:var(--space-3);font-size:var(--text-sm);font-weight:700;margin-bottom:var(--space-8)}
+    .brand svg{width:2.6rem;height:2.6rem;padding:.55rem;border-radius:.85rem;background:var(--color-surface-offset);border:1px solid rgba(122,121,116,.16)}
+    .nav-group{display:grid;gap:var(--space-2);margin-bottom:var(--space-6)}
+    .nav-label{font-size:var(--text-xs);letter-spacing:.08em;text-transform:uppercase;color:var(--color-text-muted);margin-bottom:.35rem}
+    .nav-item{min-height:44px;padding:.8rem .95rem;border-radius:var(--radius-md);display:flex;align-items:center;justify-content:space-between;gap:var(--space-3);font-size:var(--text-sm)}
+    .nav-item.active{background:color-mix(in srgb,var(--color-primary) 12%, var(--color-surface));color:var(--color-primary);font-weight:700}
+    .header{grid-column:2;position:sticky;top:0;z-index:10;background:color-mix(in srgb,var(--color-bg) 88%, transparent);backdrop-filter:blur(16px);border-bottom:1px solid rgba(122,121,116,.16)}
+    .header-inner{display:flex;align-items:center;justify-content:space-between;gap:var(--space-4);padding:var(--space-4) var(--space-5)}
+    .header h1{font-family:var(--font-display);font-size:var(--text-xl);line-height:1.08}
+    .header p{font-size:var(--text-sm);color:var(--color-text-muted)}
+    .header-actions{display:flex;align-items:center;gap:var(--space-3)}
+    .search,.theme-toggle,.menu-toggle,.action-btn{min-height:44px;border-radius:var(--radius-full);background:var(--color-surface);border:1px solid rgba(122,121,116,.16);display:inline-flex;align-items:center}
+    .search{padding:0 .95rem;min-width:250px;color:var(--color-text-muted)} .theme-toggle,.menu-toggle,.action-btn{justify-content:center;min-width:44px;padding:0 .9rem}
+    .main{grid-column:2;overflow-y:auto;overscroll-behavior:contain;padding:var(--space-5)}
+    .hero-panel,.card,.table-card{background:var(--color-surface);border:1px solid rgba(122,121,116,.16);border-radius:var(--radius-xl);box-shadow:var(--shadow-sm)}
+    .hero-panel{padding:var(--space-6);display:grid;grid-template-columns:1.4fr .9fr;gap:var(--space-5);margin-bottom:var(--space-5)}
+    .hero-panel h2{font-family:var(--font-display);font-size:var(--text-lg);margin-bottom:var(--space-2)}
+    .muted{color:var(--color-text-muted)}
+    .chip{display:inline-flex;align-items:center;gap:.45rem;padding:.4rem .75rem;border-radius:var(--radius-full);background:var(--color-surface-offset);font-size:var(--text-xs);font-weight:700;color:var(--color-text-muted)}
+    .kpi-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--space-4);margin-bottom:var(--space-5)}
+    .card{padding:var(--space-5);display:grid;gap:var(--space-3)}
+    .card-title{display:flex;justify-content:space-between;gap:var(--space-3);align-items:flex-start}
+    .metric{font-size:clamp(1.6rem,1.2rem + 1vw,2.2rem);font-weight:700;font-variant-numeric:tabular-nums lining-nums}
+    .metric-positive{color:var(--color-success)} .metric-neutral{color:var(--color-blue)} .metric-alert{color:var(--color-orange)}
+    .analytics-grid{display:grid;grid-template-columns:1.4fr 1fr;gap:var(--space-5);margin-bottom:var(--space-5)}
+    .chart-shell{padding:var(--space-5)}
+    .chart-header{display:flex;justify-content:space-between;align-items:center;gap:var(--space-4);margin-bottom:var(--space-5)}
+    .chart{display:grid;align-items:end;grid-template-columns:repeat(8,minmax(0,1fr));gap:var(--space-3);height:220px}
+    .bar-wrap{display:grid;gap:var(--space-2);justify-items:center}
+    .bar{width:100%;max-width:46px;border-radius:999px 999px .5rem .5rem;background:linear-gradient(180deg,color-mix(in srgb,var(--color-primary) 72%, white),var(--color-primary));min-height:40px}
+    .bar.secondary{background:linear-gradient(180deg,color-mix(in srgb,var(--color-blue) 68%, white),var(--color-blue))}
+    .label{font-size:var(--text-xs);color:var(--color-text-muted)}
+    .mini-grid{display:grid;gap:var(--space-4)}
+    .spark{height:84px;border-radius:var(--radius-lg);background:
+      linear-gradient(180deg, color-mix(in srgb,var(--color-primary) 9%, transparent), transparent),
+      linear-gradient(135deg, transparent 18%, color-mix(in srgb,var(--color-primary) 35%, transparent) 18% 22%, transparent 22% 38%, color-mix(in srgb,var(--color-primary) 45%, transparent) 38% 45%, transparent 45% 62%, color-mix(in srgb,var(--color-primary) 55%, transparent) 62% 67%, transparent 67% 100%),
+      var(--color-surface-offset);
+      border:1px solid rgba(122,121,116,.12)}
+    .table-card{padding:var(--space-5)}
+    .table-top{display:flex;justify-content:space-between;align-items:center;gap:var(--space-4);margin-bottom:var(--space-4)}
+    th,td{text-align:left;padding:1rem .85rem;font-size:var(--text-sm);font-variant-numeric:tabular-nums lining-nums}
+    thead{background:var(--color-surface-offset)} tbody tr+tr td{border-top:1px solid rgba(122,121,116,.12)}
+    .status{padding:.35rem .7rem;border-radius:var(--radius-full);font-size:var(--text-xs);font-weight:700;display:inline-flex}
+    .status.live{background:color-mix(in srgb,var(--color-success) 14%, var(--color-surface));color:var(--color-success)}
+    .status.review{background:color-mix(in srgb,var(--color-orange) 16%, var(--color-surface));color:var(--color-orange)}
+    .status.planned{background:color-mix(in srgb,var(--color-blue) 14%, var(--color-surface));color:var(--color-blue)}
+    .mobile-bar{display:none}
+    @media (max-width:1100px){.dashboard{grid-template-columns:88px minmax(0,1fr)}.sidebar{padding:var(--space-4)}.brand span,.nav-item span:last-child,.nav-label,.team-note{display:none}.nav-item{justify-content:center;padding:.85rem}.hero-panel,.analytics-grid{grid-template-columns:1fr}.kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    @media (max-width:760px){html,body{overflow:auto}.dashboard{display:block;height:auto}.sidebar{display:none}.header{position:sticky}.header-inner{padding:var(--space-4);flex-wrap:wrap}.search{min-width:0;flex:1}.main{overflow:visible;padding:var(--space-4)}.kpi-grid,.analytics-grid{grid-template-columns:1fr}.table-card{overflow:auto}.mobile-bar{position:sticky;bottom:0;display:grid;grid-template-columns:repeat(4,1fr);gap:var(--space-2);padding:var(--space-3);background:color-mix(in srgb,var(--color-bg) 92%, transparent);backdrop-filter:blur(16px);border-top:1px solid rgba(122,121,116,.16)}.mobile-bar a{min-height:44px;display:grid;place-items:center;background:var(--color-surface);border-radius:var(--radius-md);font-size:var(--text-xs)}}
+  </style>
+</head>
+<body>
+  <div class="dashboard">
+    <aside class="sidebar" aria-label="Primary dashboard navigation">
+      <div class="brand">
+        <svg viewBox="0 0 48 48" role="img" aria-label="Dashboard logo" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="5" y="5" width="38" height="38" rx="12" stroke="currentColor" stroke-width="3"/><path d="M15 32V16M24 32V12M33 32V22" stroke="currentColor" stroke-width="4" stroke-linecap="round"/></svg>
+        <span>SignalBoard</span>
+      </div>
+      <nav>
+        <div class="nav-group">
+          <p class="nav-label">Overview</p>
+          <a href="#" class="nav-item active"><span>◉</span><span>Executive view</span></a>
+          <a href="#" class="nav-item"><span>◎</span><span>Revenue</span></a>
+          <a href="#" class="nav-item"><span>◌</span><span>Audience</span></a>
+          <a href="#" class="nav-item"><span>◍</span><span>Campaigns</span></a>
+        </div>
+        <div class="nav-group">
+          <p class="nav-label">Workspace</p>
+          <a href="#" class="nav-item"><span>◔</span><span>Reports</span></a>
+          <a href="#" class="nav-item"><span>◑</span><span>Team inbox</span></a>
+          <a href="#" class="nav-item"><span>◒</span><span>Automation</span></a>
+        </div>
+        <div class="card team-note" style="margin-top:var(--space-6)">
+          <p class="chip">Updated 2m ago</p>
+          <p class="muted">Compact layout, one-scroll-region structure, and mobile bottom navigation keep the dashboard usable across devices.</p>
+        </div>
+      </nav>
+    </aside>
+
+    <header class="header">
+      <div class="header-inner">
+        <div>
+          <h1>Analytics dashboard</h1>
+          <p>Track growth, campaign efficiency, and pipeline health.</p>
+        </div>
+        <div class="header-actions">
+          <button class="menu-toggle" aria-label="Open menu">☰</button>
+          <div class="search" aria-label="Search field">Search reports</div>
+          <button class="action-btn" aria-label="Export report">⇩</button>
+          <button class="theme-toggle" data-theme-toggle aria-label="Switch theme">☾</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="main">
+      <section class="hero-panel">
+        <div>
+          <span class="chip">Quarterly performance</span>
+          <h2 style="margin-top:1rem">A clean, responsive data layout for desktop, tablet, and mobile.</h2>
+          <p class="muted">This dashboard uses KPI cards, a chart placeholder grid, summary widgets, and a professional activity table. All values use tabular numerals for better readability in dense UI contexts.</p>
+        </div>
+        <div class="card">
+          <div class="card-title"><span>Forecast confidence</span><span class="chip">92%</span></div>
+          <div class="metric">₹482,400</div>
+          <p class="muted">Projected monthly pipeline value with a 14.2% uplift compared with the previous cycle.</p>
+        </div>
+      </section>
+
+      <section class="kpi-grid" aria-label="KPI summary cards">
+        <article class="card"><div class="card-title"><span>Total revenue</span><span class="chip">This month</span></div><div class="metric">₹128,420</div><p class="metric-positive">+18.6%</p><p class="muted">Revenue increased from paid campaigns and repeat orders.</p></article>
+        <article class="card"><div class="card-title"><span>Active users</span><span class="chip">7 days</span></div><div class="metric">48,912</div><p class="metric-neutral">+5.2%</p><p class="muted">Weekly active users stayed steady across web and mobile.</p></article>
+        <article class="card"><div class="card-title"><span>Conversion rate</span><span class="chip">Funnel</span></div><div class="metric">6.84%</div><p class="metric-positive">+0.9%</p><p class="muted">Landing page experiments improved checkout completion.</p></article>
+        <article class="card"><div class="card-title"><span>Open tasks</span><span class="chip">Ops</span></div><div class="metric">17</div><p class="metric-alert">Needs review</p><p class="muted">Pending campaign approvals and reporting requests.</p></article>
+      </section>
+
+      <section class="analytics-grid">
+        <article class="hero-panel chart-shell">
+          <div class="chart-header"><div><h2>Traffic trend</h2><p class="muted">Adaptive chart placeholder made with CSS bars.</p></div><span class="chip">Jan–Aug</span></div>
+          <div class="chart" aria-hidden="true">
+            <div class="bar-wrap"><div class="bar" style="height:48%"></div><span class="label">Jan</span></div>
+            <div class="bar-wrap"><div class="bar secondary" style="height:62%"></div><span class="label">Feb</span></div>
+            <div class="bar-wrap"><div class="bar" style="height:58%"></div><span class="label">Mar</span></div>
+            <div class="bar-wrap"><div class="bar secondary" style="height:76%"></div><span class="label">Apr</span></div>
+            <div class="bar-wrap"><div class="bar" style="height:68%"></div><span class="label">May</span></div>
+            <div class="bar-wrap"><div class="bar secondary" style="height:84%"></div><span class="label">Jun</span></div>
+            <div class="bar-wrap"><div class="bar" style="height:71%"></div><span class="label">Jul</span></div>
+            <div class="bar-wrap"><div class="bar secondary" style="height:92%"></div><span class="label">Aug</span></div>
+          </div>
+        </article>
+        <div class="mini-grid">
+          <article class="card"><div class="card-title"><span>Retention pulse</span><span class="chip">Weekly</span></div><div class="spark" aria-hidden="true"></div><p class="muted">Use this panel for sparklines, mini trends, or placeholder chart blocks.</p></article>
+          <article class="card"><div class="card-title"><span>Top channel</span><span class="status live">Organic search</span></div><div class="metric">41.3%</div><p class="muted">Search remains the strongest acquisition source this month.</p></article>
+        </div>
+      </section>
+
+      <section class="table-card" aria-label="Campaign performance table">
+        <div class="table-top">
+          <div><h2 style="font-family:var(--font-display);font-size:var(--text-lg)">Campaign table</h2><p class="muted">Professional table layout with responsive overflow on smaller screens.</p></div>
+          <span class="chip">4 rows</span>
+        </div>
+        <table>
+          <thead>
+            <tr><th>Campaign</th><th>Owner</th><th>Spend</th><th>Revenue</th><th>Status</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Spring launch</td><td>Anika</td><td>₹12,400</td><td>₹38,200</td><td><span class="status live">Live</span></td></tr>
+            <tr><td>Retention email</td><td>Rohan</td><td>₹2,940</td><td>₹14,880</td><td><span class="status planned">Planned</span></td></tr>
+            <tr><td>Affiliate refresh</td><td>Naina</td><td>₹6,510</td><td>₹17,940</td><td><span class="status review">Review</span></td></tr>
+            <tr><td>Remarketing burst</td><td>Dev</td><td>₹8,130</td><td>₹23,470</td><td><span class="status live">Live</span></td></tr>
+          </tbody>
+        </table>
+      </section>
+    </main>
+
+    <nav class="mobile-bar" aria-label="Mobile navigation">
+      <a href="#">Home</a><a href="#">KPIs</a><a href="#">Charts</a><a href="./project-collection.html">Back</a>
+    </nav>
+  </div>
+
+  <script>
+    (function(){
+      const root = document.documentElement;
+      const toggle = document.querySelector('[data-theme-toggle]');
+      let theme = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      root.setAttribute('data-theme', theme);
+      const sync = () => toggle.textContent = theme === 'dark' ? '☀' : '☾';
+      sync();
+      toggle.addEventListener('click', () => { theme = theme === 'dark' ? 'light' : 'dark'; root.setAttribute('data-theme', theme); sync(); });
+    })();
+  </script>
+</body>
+</html>
